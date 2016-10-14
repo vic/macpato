@@ -19,7 +19,7 @@ defmodule Expat do
       ...>   fn a, b, c -> a + b + c end
       ...> end
       ...> case expr do
-      ...>   expat(fn _, _, ^x -> _ end) ->
+      ...>   expat(fn _, _, ^^x -> _ end) ->
       ...>     with({name, _, _} <- x, do: name)
       ...>   _ -> :dunno
       ...> end
@@ -32,7 +32,7 @@ defmodule Expat do
       ...> end
       ...> x = 22
       ...> case expr do
-      ...>   expat(fn _ -> _ + ^^x end) -> :good
+      ...>   expat(fn _ -> _ + ^x end) -> :good
       ...>   _ -> :dunno
       ...> end
       :good
@@ -73,9 +73,9 @@ defmodule Expat do
   defp context(any, _), do: any
 
   # pin to variable
-  defp ref({:_expat_ref, {:_expat_ref, {:{}, _, [a, _, _]}}}), do: {:^, [], [{a, [], nil}]}
+  defp ref({:_expat_ref, {:_expat_ref, {:{}, _, [a, _, _]}}}), do: {a, [], nil}
   # assign to variable
-  defp ref({:_expat_ref, {:{}, _, [a, _, _]}}), do: {a, [], nil}
+  defp ref({:_expat_ref, {:{}, _, [a, _, _]}}), do: {:^, [], [{a, [], nil}]}
   defp ref(any), do: any
 
   defp lowdash(:_expat_), do: {:_, [], Elixir}

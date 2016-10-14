@@ -37,23 +37,8 @@ iex> import Expat
 :b_is_second_arg
 ```
 
-You can use the pin operator to bind a new variable, for
-example, to get the name of the third argument bellow:
 
-```elixir
-iex> import Expat
-...> expr = quote do
-...>   fn a, b, c -> a + b + c end
-...> end
-...> case expr do
-...>   expat(fn _, _, ^x -> _ end) ->
-...>     with({name, _, _} <- x, do: name)
-...>   _ -> :dunno
-...> end
-:c
-```
-
-The double pin lets you check on existing variables as in normal patterns.
+The variable pin lets you check on existing variables as in normal patterns.
 The following example checks that we are adding the number 22
 
 ```elixir
@@ -63,10 +48,26 @@ iex> import Expat
 ...> end
 ...> x = 22
 ...> case expr do
-...>   expat(fn _ -> _ + ^^x end) -> :good
+...>   expat(fn _ -> _ + ^x end) -> :good
 ...>   _ -> :dunno
 ...> end
 :good
+```
+
+You can use the double pin operator to assign into a variable, for
+example, to get the name of the third argument bellow:
+
+```elixir
+iex> import Expat
+...> expr = quote do
+...>   fn a, b, c -> a + b + c end
+...> end
+...> case expr do
+...>   expat(fn _, _, ^^x -> _ end) ->
+...>     with({name, _, _} <- x, do: name)
+...>   _ -> :dunno
+...> end
+:c
 ```
 
 
