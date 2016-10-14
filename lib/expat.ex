@@ -1,5 +1,44 @@
 defmodule Expat do
 
+  @moduledoc ~S"""
+
+      iex> import Expat
+      ...> expr = quote do
+      ...>   fn a, b, c -> a + b + c end
+      ...> end
+      ...> case expr do
+      ...>   expat(fn _, b, _ -> _ end) -> :b_is_second_arg
+      ...>   _ -> :dunno
+      ...> end
+      :b_is_second_arg
+
+
+
+      iex> import Expat
+      ...> expr = quote do
+      ...>   fn a, b, c -> a + b + c end
+      ...> end
+      ...> case expr do
+      ...>   expat(fn _, _, ^x -> _ end) ->
+      ...>     with({name, _, _} <- x, do: name)
+      ...>   _ -> :dunno
+      ...> end
+      :c
+
+
+      iex> import Expat
+      ...> expr = quote do
+      ...>   fn a -> a + 22 end
+      ...> end
+      ...> x = 22
+      ...> case expr do
+      ...>   expat(fn _ -> _ + ^^x end) -> :good
+      ...>   _ -> :dunno
+      ...> end
+      :good
+
+  """
+
   defmacro expat(expr, opts \\ []) do
     expr
     |> Macro.prewalk(&pre(&1, opts))

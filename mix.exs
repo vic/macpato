@@ -5,6 +5,8 @@ defmodule Expat.Mixfile do
     [app: :expat,
      version: "0.1.0",
      elixir: "~> 1.3",
+     description: description,
+     package: package,
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps()]
@@ -27,6 +29,22 @@ defmodule Expat.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [
+      {:ex_doc, ">= 0.0.0", only: :dev}
+    ]
   end
+
+  def description do
+    """
+    Simple pattern matching on quoted expressions.
+    """
+  end
+
+  defp package do
+    [files: ["lib", "mix.exs", "README*"],
+     maintainers: ["Victor Borja"],
+     licenses: ["Apache 2.0"],
+     links: %{"GitHub" => "https://github.com/vic/expat"}]
+  end
+
 end
