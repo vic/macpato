@@ -1,84 +1,106 @@
 defmodule Expat do
 
-  @moduledoc ~S"""
+  @moduledoc false
+  @foo ~S"""
 
-      iex> import Expat
-      ...> expr = quote do
-      ...>   fn a, b, c -> a + b + c end
-      ...> end
-      ...> case expr do
-      ...>   expat(fn _, b, _ -> _ end) -> :b_is_second_arg
-      ...>   _ -> :dunno
-      ...> end
-      :b_is_second_arg
-
-
-
-      iex> import Expat
-      ...> expr = quote do
-      ...>   fn a, b, c -> a + b + c end
-      ...> end
-      ...> case expr do
-      ...>   expat(fn _, _, ^^x -> _ end) ->
-      ...>     with({name, _, _} <- x, do: name)
-      ...>   _ -> :dunno
-      ...> end
-      :c
+  iex> import Expat
+  ...> expr = quote do
+  ...>   fn a, b, c -> a + b + c end
+  ...> end
+  ...> case expr do
+  ...>   expat(fn _, b, _ -> _ end) -> :b_is_second_arg
+  ...>   _ -> :dunno
+  ...> end
+  :b_is_second_arg
 
 
-      iex> import Expat
-      ...> expr = quote do
-      ...>   fn a -> a + 22 end
-      ...> end
-      ...> x = 22
-      ...> case expr do
-      ...>   expat(fn _ -> _ + ^x end) -> :good
-      ...>   _ -> :dunno
-      ...> end
-      :good
+
+  iex> import Expat
+  ...> expr = quote do
+  ...>   fn a, b, c -> a + b + c end
+  ...> end
+  ...> case expr do
+  ...>   expat(fn _, _, _(^x) -> _ end) ->
+  ...>     with({name, _, _} <- x, do: name)
+  ...>   _ -> :dunno
+  ...> end
+  :c
+
+
+  iex> import Expat
+  ...> expr = quote do
+  ...>   fn a -> a + 22 end
+  ...> end
+  ...> x = 22
+  ...> case expr do
+  ...>   expat(fn _ -> _ + ^x end) -> :good
+  ...>   _ -> :dunno
+  ...> end
+  :good
 
   """
 
+  defmodule Pre do
+    def walk(expr, opts) do
+      Macro.prewalk(expr, &step(&1, opts))
+    end
+
+    defp step({:^, _, [expr]}, _), do: [expat: expr]
+    defp step(expr, opts) do
+      expr
+      |> lowd()
+      |> meta(Keyword.get(opts, :meta, false))
+      |> context(Keyword.get(opts, :meta, false))
+    end
+
+    defp lowd({:_, _, nil}), do: wildcard
+    defp lowd(any), do: any
+
+    defp meta({a, _, c}, false), do: {a, wildcard, c}
+    defp meta(any, _), do: any
+
+    defp context({a, b, c}, false) when is_atom(a) and is_atom(c), do: {a, b, wildcard}
+    defp context(any, _), do: any
+
+    defp wildcard do
+      [expat: :_]
+    end
+  end
+
+  defmodule Post do
+    def walk(expr, _opts) do
+      Macro.prewalk(expr, &step/1)
+    end
+
+    # wildcard
+    defp step(expat: :_), do: {:_, [], nil}
+
+    # assign to variable
+    defp step(expat: [expat: {:{}, [], [name, _, _]}]) when is_atom(name) do
+      {name, [], nil}
+    end
+
+    # pin to variable
+    defp step(expat: {:{}, [], [name, _, _]}) when is_atom(name) do
+      {:^, [], [{name, [], nil}]}
+    end
+
+    defp step(expat: expat) do
+      raise "NEL #{inspect expat}"
+    end
+    defp step(any), do: any
+
+  end
+
   defmacro expat(expr, opts \\ []) do
+    expat_expr(expr, opts)
+  end
+
+  def expat_expr(expr, opts \\ []) do
     expr
-    |> Macro.prewalk(&pre(&1, opts))
+    |> Pre.walk(opts)
     |> Macro.escape
-    |> Macro.prewalk(&pos(&1, opts))
+    |> Post.walk(opts)
   end
-
-  defp pre(expr, opts) do
-    expr
-    |> exref()
-    |> placeholder()
-    |> meta(Keyword.get(opts, :meta, false))
-    |> context(Keyword.get(opts, :context, false))
-  end
-
-  defp pos(expr, _opts) do
-    expr
-    |> ref
-    |> lowdash
-  end
-
-  defp exref({:^, _, [ref]}), do: {:_expat_ref, ref}
-  defp exref(any), do: any
-
-  defp placeholder({:_, _, _}), do: :_expat_
-  defp placeholder(any), do: any
-
-  defp meta({a, _, c}, false), do: {a, :_expat_, c}
-  defp meta(any, _), do: any
-
-  defp context({a, b, c}, false) when is_atom(a) and is_atom(c), do: {a, b, :_expat_}
-  defp context(any, _), do: any
-
-  # pin to variable
-  defp ref({:_expat_ref, {:_expat_ref, {:{}, _, [a, _, _]}}}), do: {a, [], nil}
-  # assign to variable
-  defp ref({:_expat_ref, {:{}, _, [a, _, _]}}), do: {:^, [], [{a, [], nil}]}
-  defp ref(any), do: any
-
-  defp lowdash(:_expat_), do: {:_, [], Elixir}
-  defp lowdash(any), do: any
 
 end
