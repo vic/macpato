@@ -19,8 +19,7 @@ defmodule Expat do
       ...>   fn a, b, c -> a + b + c end
       ...> end
       ...> case expr do
-      ...>   expat(fn _, _, _(x) -> _ end) ->
-      ...>     with({name, _, _} <- x, do: name)
+      ...>   expat(fn _, _, _({name, _, _}) -> _ end) -> name
       ...>   _ -> :dunno
       ...> end
       :c
@@ -87,8 +86,8 @@ defmodule Expat do
     expat_expr(expr, opts)
   end
 
-  def expat_expr(expr, opts \\ []) do
-    expr
+  def expat_expr(ast, opts \\ []) do
+    ast
     |> Pre.walk(opts)
     |> Macro.escape
     |> Post.walk

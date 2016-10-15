@@ -19,11 +19,11 @@ Expat is a macro for very simple pattern matching on quoted elixir expressions.
 A typical pattern match on a quoted expression looks like this:
 
 ```elixir
-assert {:foo, _ctx, _args} = quote(do: foo)
+{:foo, _ctx, _args} = quote(do: foo)
 ```
 
-However as the complex expression, the complex the AST, and
-sometimes you just want to pattern match on it
+However for complex expression, the pattern to match the AST can get way longer.
+expat helps by giving you a way to create these patterns easily.
 
 ```elixir
 iex> import Expat
@@ -49,8 +49,7 @@ iex> import Expat
 ...>   fn a, b, c -> a + b + c end
 ...> end
 ...> case expr do
-...>   expat(fn _, _, _(x) -> _ end) ->
-...>     with({name, _, _} <- x, do: name)
+...>   expat(fn _, _, _({name, _, _}) -> _ end) -> name
 ...>   _ -> :dunno
 ...> end
 :c
@@ -71,3 +70,5 @@ iex> import Expat
 :good
 ```
 
+Note that `expat` can be used on any place where you can have a pattern in Elixir,
+like macro definition arguments, cases, with expressions, etc.

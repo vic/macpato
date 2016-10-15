@@ -35,8 +35,9 @@ defmodule ExpatTest do
     assert expat(fn _ -> _ end) = quote(do: fn hola -> adios end)
   end
 
-  test "can detect function with two arguments" do
-    assert expat(fn a, _ -> c end) = quote(do: fn a, b -> c end)
+  test "can embed another pattern with _" do
+    assert expat(fn a, _({n, _, _}) -> c end) = quote(do: fn a, b -> c end)
+    assert :b == n
   end
 
 
