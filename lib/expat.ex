@@ -1,7 +1,6 @@
 defmodule Expat do
 
-  @moduledoc false
-  @foo ~S"""
+  @moduledoc ~S"""
 
   iex> import Expat
   ...> expr = quote do
@@ -20,7 +19,7 @@ defmodule Expat do
   ...>   fn a, b, c -> a + b + c end
   ...> end
   ...> case expr do
-  ...>   expat(fn _, _, _(^x) -> _ end) ->
+  ...>   expat(fn _, _, ^^x -> _ end) ->
   ...>     with({name, _, _} <- x, do: name)
   ...>   _ -> :dunno
   ...> end
@@ -85,11 +84,7 @@ defmodule Expat do
       {:^, [], [{name, [], nil}]}
     end
 
-    defp step(expat: expat) do
-      raise "NEL #{inspect expat}"
-    end
     defp step(any), do: any
-
   end
 
   defmacro expat(expr, opts \\ []) do
