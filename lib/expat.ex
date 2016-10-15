@@ -80,7 +80,7 @@ defmodule Expat do
   end
 
   defmodule Post do
-    def walk([[expat: {:{}, _, [:@, _, [expr]]}]]), do: Macro.prewalk(expr, &unscape/1)
+    def walk([[expat: {:{}, _, [:@, _, [expr]]}]]), do: walk(expat: expr)
     def walk(expat: expr), do: Macro.prewalk(expr, &unscape/1)
     def walk({:{}, _, x}) when is_list(x), do: {:{}, [], walk(x)}
     def walk(expr) when is_list(expr), do: Enum.map(expr, &walk/1)

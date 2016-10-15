@@ -45,4 +45,26 @@ defmodule ExpatTest do
     assert 3 == length(args)
   end
 
+  test "can match a binary op" do
+    assert expat(_(a) | _) = quote(do: x | y)
+    assert expat(x) = a
+  end
+
+  test "can capture a call args" do
+    assert expat(x(_(@args))) = quote(do: x(1, 2, 3))
+    assert [1, 2, 3] == args
+  end
+
+  test "can capture a simple array" do
+    assert expat([_(@items)])  = quote(do: [1, 2, 3])
+    assert [1, 2, 3] == items
+  end
+
+  test "can capture from array concat" do
+    assert expat(fn [_(@[x, y, z])] -> _ end) = quote(do: fn [a, b, c | d] -> x end)
+    assert expat(a) = x
+    assert expat(b) = y
+    assert expat(c | d) = z
+  end
+
 end

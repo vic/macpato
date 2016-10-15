@@ -10,7 +10,7 @@ Expat is a macro for very simple pattern matching on quoted elixir expressions.
 
     ```elixir
     def deps do
-      [{:expat, "~> 0.1.1"}]
+      [{:expat, "~> 0.1.2"}]
     end
     ```
 
@@ -85,3 +85,6 @@ iex> import Expat
 
 Note that `expat` can be used on any place where you can have a pattern in Elixir,
 like macro definition arguments, cases, with expressions, etc.
+
+
+See the [tests](https://github.com/vic/expat/blob/master/test/expat_test.exs) for more examples.
