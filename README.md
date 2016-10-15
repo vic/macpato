@@ -1,5 +1,7 @@
 # Expat
 
+<a href="https://travis-ci.org/vic/expat"><img src="https://travis-ci.org/vic/expat.svg"></a>
+
 Expat is a macro for very simple pattern matching on quoted elixir expressions.
 
 ## Installation
