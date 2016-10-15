@@ -69,18 +69,14 @@ defmodule Expat do
     defp context(any, _), do: any
 
     defp wildcard do
-      [expat: :_]
+      [expat: {:_, [], Elixir}]
     end
   end
 
   defmodule Post do
-    def walk({:{}, _, [a, b, [expat: c]]}) do
-      {:{}, [], [walk(a), walk(b), walk(expat: c)]}
+    def walk({:{}, _, x}) when is_list(x) do
+      {:{}, [], walk(x)}
     end
-    def walk({:{}, _, [a, b, c]}) do
-      {:{}, [], [walk(a), walk(b), Enum.map(c, &walk/1)]}
-    end
-    def walk(expat: :_), do: {:_, [], Elixir}
     def walk(expat: expr), do: Macro.prewalk(expr, &unscape/1)
     def walk(expr) when is_list(expr), do: Enum.map(expr, &walk/1)
     def walk(expr), do: expr
