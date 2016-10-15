@@ -2,6 +2,7 @@ defmodule ExpatTest do
   use ExUnit.Case
 
   import Expat
+
   doctest Expat
 
   test "can match a literal value" do
@@ -21,13 +22,13 @@ defmodule ExpatTest do
   end
 
   test "can create a variable with part of the pattern" do
-    assert expat(hola(^^x)) = quote(do: hola(adios))
+    assert expat(hola(_(x))) = quote(do: hola(adios))
     assert {:adios, _, _} = x
   end
 
   test "can bind a variable with part of the pattern" do
     x = 22
-    assert expat(hola(^x)) = quote(do: hola(22))
+    assert expat(hola(_(^x))) = quote(do: hola(22))
   end
 
   test "can match placeholder on function arg and body" do
