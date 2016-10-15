@@ -70,5 +70,18 @@ iex> import Expat
 :good
 ```
 
+You can capture arrays from the AST with `_(@)` for example:
+
+```elixir
+iex> import Expat
+...> expr = quote do
+...>   fn a, b, c -> x end
+...> end
+...> case expr do
+...>   expat(fn _(@args) -> _ end) -> length(args)
+...> end
+3
+```
+
 Note that `expat` can be used on any place where you can have a pattern in Elixir,
 like macro definition arguments, cases, with expressions, etc.

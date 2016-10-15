@@ -20,7 +20,6 @@ defmodule Expat do
       ...> end
       ...> case expr do
       ...>   expat(fn _, _, _({name, _, _}) -> _ end) -> name
-      ...>   _ -> :dunno
       ...> end
       :c
 
@@ -32,10 +31,18 @@ defmodule Expat do
       ...> x = 22
       ...> case expr do
       ...>   expat(fn _ -> _ + _(^x) end) -> :good
-      ...>   _ -> :dunno
       ...> end
       :good
 
+
+      iex> import Expat
+      ...> expr = quote do
+      ...>   fn a, b, c -> x end
+      ...> end
+      ...> case expr do
+      ...>   expat(fn _(@args) -> _ end) -> length(args)
+      ...> end
+      3
   """
 
   defmodule Pre do
@@ -73,6 +80,7 @@ defmodule Expat do
   end
 
   defmodule Post do
+    def walk([[expat: {:{}, _, [:@, _, [expr]]}]]), do: Macro.prewalk(expr, &unscape/1)
     def walk(expat: expr), do: Macro.prewalk(expr, &unscape/1)
     def walk({:{}, _, x}) when is_list(x), do: {:{}, [], walk(x)}
     def walk(expr) when is_list(expr), do: Enum.map(expr, &walk/1)

@@ -40,5 +40,9 @@ defmodule ExpatTest do
     assert :b == n
   end
 
+  test "can capture a function arguments with _(@)" do
+    assert expat(fn _(@args) -> c end) = quote(do: fn a, b, c -> c end)
+    assert 3 == length(args)
+  end
 
 end
