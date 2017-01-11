@@ -10,11 +10,11 @@ use Mix.Config
 
 # You can configure for your application as:
 #
-#     config :expat, key: :value
+#     config :macpato, key: :value
 #
 # And access this configuration in your application as:
 #
-#     Application.get_env(:expat, :key)
+#     Application.get_env(:macpato, :key)
 #
 # Or configure a 3rd-party app:
 #

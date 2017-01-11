@@ -1,8 +1,8 @@
-defmodule Expat.Mixfile do
+defmodule Macpato.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :expat,
+    [app: :macpato,
      version: "0.1.2",
      elixir: "~> 1.3",
      description: description,
@@ -44,7 +44,7 @@ defmodule Expat.Mixfile do
     [files: ["lib", "mix.exs", "README*"],
      maintainers: ["Victor Borja"],
      licenses: ["Apache 2.0"],
-     links: %{"GitHub" => "https://github.com/vic/expat"}]
+     links: %{"GitHub" => "https://github.com/vic/macpato"}]
   end
 
 end

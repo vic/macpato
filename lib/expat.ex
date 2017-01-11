@@ -1,53 +1,53 @@
-defmodule Expat do
+defmodule Macpato do
 
   @moduledoc ~S"""
 
-      iex> import Expat
+      iex> import Macpato
       ...> expr = quote do
       ...>   fn a, b, c -> a + b + c end
       ...> end
       ...> case expr do
-      ...>   expat(fn _, b, _ -> _ end) -> :b_is_second_arg
+      ...>   macpato(fn _, b, _ -> _ end) -> :b_is_second_arg
       ...>   _ -> :dunno
       ...> end
       :b_is_second_arg
 
 
 
-      iex> import Expat
+      iex> import Macpato
       ...> expr = quote do
       ...>   fn a, b, c -> a + b + c end
       ...> end
       ...> case expr do
-      ...>   expat(fn _, _, _({name, _, _}) -> _ end) -> name
+      ...>   macpato(fn _, _, _({name, _, _}) -> _ end) -> name
       ...> end
       :c
 
 
-      iex> import Expat
+      iex> import Macpato
       ...> expr = quote do
       ...>   fn a -> a + 22 end
       ...> end
       ...> x = 22
       ...> case expr do
-      ...>   expat(fn _ -> _ + _(^x) end) -> :good
+      ...>   macpato(fn _ -> _ + _(^x) end) -> :good
       ...> end
       :good
 
 
-      iex> import Expat
+      iex> import Macpato
       ...> expr = quote do
       ...>   fn a, b, c -> x end
       ...> end
       ...> case expr do
-      ...>   expat(fn _(@args) -> _ end) -> length(args)
+      ...>   macpato(fn _(@args) -> _ end) -> length(args)
       ...> end
       3
   """
 
   defmodule Pre do
 
-    def walk({:_, _, [expr]}, _), do: [expat: expr]
+    def walk({:_, _, [expr]}, _), do: [macpato: expr]
     def walk({a, b, c}, opts) when length(c) > 0 do
       {walk(a, opts), walk(b, opts), Enum.map(c, &walk(&1, opts))} |> step(opts)
     end
@@ -75,13 +75,13 @@ defmodule Expat do
     defp context(any, _), do: any
 
     defp wildcard do
-      [expat: {:_, [], Elixir}]
+      [macpato: {:_, [], Elixir}]
     end
   end
 
   defmodule Post do
-    def walk([[expat: {:{}, _, [:@, _, [expr]]}]]), do: walk(expat: expr)
-    def walk(expat: expr), do: Macro.prewalk(expr, &unscape/1)
+    def walk([[macpato: {:{}, _, [:@, _, [expr]]}]]), do: walk(macpato: expr)
+    def walk(macpato: expr), do: Macro.prewalk(expr, &unscape/1)
     def walk({:{}, _, x}) when is_list(x), do: {:{}, [], walk(x)}
     def walk(expr) when is_list(expr), do: Enum.map(expr, &walk/1)
     def walk(expr), do: expr
@@ -90,11 +90,11 @@ defmodule Expat do
     defp unscape(expr), do: expr
   end
 
-  defmacro expat(expr, opts \\ []) do
-    expat_expr(expr, opts)
+  defmacro macpato(expr, opts \\ []) do
+    macpato_expr(expr, opts)
   end
 
-  def expat_expr(ast, opts \\ []) do
+  def macpato_expr(ast, opts \\ []) do
     ast
     |> Pre.walk(opts)
     |> Macro.escape
